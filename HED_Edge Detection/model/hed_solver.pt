@@ -1,0 +1,13 @@
+base_lr: 0.000001
+display: 10
+gamma: 0.1
+iter_size: 10
+lr_policy: "step"
+max_iter: 40000
+momentum: 0.9
+net: "model/hed_train.pt"
+snapshot: 2000
+snapshot_prefix: "snapshot/hed"
+solver_mode: GPU
+stepsize: 10000
+weight_decay: 0.0002
