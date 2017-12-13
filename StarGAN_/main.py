@@ -21,7 +21,8 @@ def main(config):
         os.makedirs(config.sample_path)
     if not os.path.exists(config.result_path):
         os.makedirs(config.result_path)
-
+    if not os.path.exists(config.metadata_path) :
+        os.makedirs(config.metadata_path)
     # Data loader
     celebA_loader = None
     rafd_loader = None
@@ -30,6 +31,7 @@ def main(config):
     if config.dataset in ['CelebA', 'Both']:
         celebA_loader = get_loader(config.celebA_image_path, config.metadata_path, config.celebA_crop_size,
                                    config.image_size, config.batch_size, 'CelebA', config.mode)
+
     if config.dataset in ['RaFD', 'Both']:
         rafd_loader = get_loader(config.rafd_image_path, None, config.rafd_crop_size,
                                  config.image_size, config.batch_size, 'RaFD', config.mode)
@@ -53,7 +55,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     # Model hyper-parameters
-    parser.add_argument('--c_dim', type=int, default=5)
+    parser.add_argument('--c_dim', type=int, default=7)#5)
     parser.add_argument('--c2_dim', type=int, default=8)
     parser.add_argument('--celebA_crop_size', type=int, default=178)
     parser.add_argument('--rafd_crop_size', type=int, default=256)
@@ -92,7 +94,7 @@ if __name__ == '__main__':
     parser.add_argument('--celebA_image_path', type=str, default='./data/CelebA_nocrop/images')
     parser.add_argument('--rafd_image_path', type=str, default='./data/RaFD/train')
     parser.add_argument('--input_image_path', type=str, default='./data/images/test')
-    parser.add_argument('--metadata_path', type=str, default='./data/list_attr_images.txt')
+    parser.add_argument('--metadata_path', type=str, default='./data/list_attr_images_8.txt')
     parser.add_argument('--log_path', type=str, default='./test/logs')
     parser.add_argument('--model_save_path', type=str, default='./test/models')
     parser.add_argument('--sample_path', type=str, default='./test/samples')

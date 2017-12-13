@@ -34,21 +34,19 @@ class CelebDataset(Dataset):
             self.attr2idx[attr] = i
             self.idx2attr[i] = attr
 
-        self.selected_attrs = ['Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Male', 'Young']
+        self.selected_attrs = ['Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Male', 'Young', 'Eyeglasses', 'Mustache', 'Pale_Skin', 'Bald']
         self.train_filenames = []
         self.train_labels = []
         self.test_filenames = []
         self.test_labels = []
 
         lines = self.lines[2:]
+        print lines
         random.shuffle(lines)   # random shuffling
-        for i in range(10):
-            print(lines[i])
         for i, line in enumerate(lines):
 
             splits = line.split()
             filename = splits[0]
-            print("**********************\nfilename : {}\n***********************".format(filename))
             values = splits[1:]
 
             label = []
@@ -106,6 +104,7 @@ def get_loader(image_path, metadata_path, crop_size, image_size, batch_size, dat
     else:
         dataset = CelebDataset(image_path, metadata_path, transform, mode)
 
+    #shuffle should be True in the if statement!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     shuffle = False
     if mode == 'train':
         shuffle = True

@@ -5,6 +5,7 @@ import numpy as np
 import os
 import time
 import datetime
+from powerset import powerset, subsets
 from torch.autograd import Variable
 from torch.autograd import grad
 from torchvision.utils import save_image
@@ -61,14 +62,16 @@ class Solver(object):
         self.sample_path = config.sample_path
         self.model_save_path = config.model_save_path
         self.result_path = config.result_path
-
+        self.metadata_path = config.metadata_path
         # Step size
         self.log_step = config.log_step
         self.sample_step = config.sample_step
         self.model_save_step = config.model_save_step
 
+        print("What the fuck in solver")
         # Build tensorboard if use
         self.build_model()
+        print("is model okay?")
         if self.use_tensorboard:
             self.build_tensorboard()
 
@@ -76,6 +79,7 @@ class Solver(object):
         if self.pretrained_model:
             self.load_pretrained_model()
 
+        print("What the fuck in solver2")
     def build_model(self):
         # Define a generator and a discriminator
         if self.dataset == 'Both':
@@ -168,9 +172,9 @@ class Solver(object):
         elif dataset == 'Both':
             return single attribute changes
         """
-        y = [torch.FloatTensor([1, 0, 0]),  # black hair
-             torch.FloatTensor([0, 1, 0]),  # blond hair
-             torch.FloatTensor([0, 0, 1])]  # brown hair
+        y = [torch.FloatTensor([1, 0, 0]),  # brown hair
+             torch.FloatTensor([0, 1, 0]),  # black hair
+             torch.FloatTensor([0, 0, 1])]  # blond hair
 
         fixed_c_list = []
 
@@ -184,39 +188,76 @@ class Solver(object):
                     c[i] = 0 if c[i] == 1 else 1   # opposite value
             fixed_c_list.append(self.to_var(fixed_c, volatile=True))
 
+        l = ['H', 'Male', 'Young', 'Eyeglasses', 'Mustaches', 'Pale_Skin', 'Bald']
+        s = list(powerset(l))
+        for i in range(len(l)+1):
+            s.pop(0)
+        print("\n****len(s) : {}****\n".format(len(s)))
+
+        L = [[],[],[],[],[],[],[]]
+        for i, x in enumerate(s):
+                if 'H' in x:
+                    L[0].append(i)
+                if 'Male' in x:
+                    L[1].append(i)
+                if 'Young' in x:
+                    L[2].append(i)
+                if 'Eyeglasses' in x:
+                    L[3].append(i)
+                if 'Mustaches' in x:
+                    L[4].append(i)
+                if 'Pale_Skin' in x:
+                    L[5].append(i)
+                if 'Bald' in x:
+                    L[6].append(i)
+
         # multi-attribute transfer (H+G, H+A, G+A, H+G+A)
-        if self.dataset == 'CelebA':
-            for i in range(4):
+        if self.dataset == 'CelebA' or self.dataset == 'image':
+            for i in range(len(s)):
                 fixed_c = real_c.clone()
                 for c in fixed_c:
-                    if i in [0, 1, 3]:   # Hair color to brown
+                    if i in L[0]:   # Hair color to black
                         c[:3] = y[2]
-                    if i in [0, 2, 3]:   # Gender
+                    if i in L[1]:   # Gender
                         c[3] = 0 if c[3] == 1 else 1
-                    if i in [1, 2, 3]:   # Aged
+                    if i in L[2]:   # Aged
                         c[4] = 0 if c[4] == 1 else 1
+                    if i in L[3]:   # Eyeglasses
+                        c[5] = 0 if c[5] == 1 else 1
+                    if i in L[4]:   # Mustaches
+                        c[6] = 0 if c[6] == 1 else 1
+                    if i in L[5]:   # PaleSkin
+                        c[7] = 0 if c[7] == 1 else 1
+                    if i in L[6]:   # Bald
+                        c[8] = 0 if c[8] == 1 else 1
                 fixed_c_list.append(self.to_var(fixed_c, volatile=True))
         return fixed_c_list
 
     def train(self):
-
+        print("What the fuck0")
         # Set dataloader
-        if self.dataset == 'CelebA':
+        """if self.dataset == 'CelebA':
             self.data_loader = self.celebA_loader
         else:
-            self.data_loader = self.rafd_loader
-
+            self.data_loader = self.rafd_loader"""
+        print("What the fuck1")
         # The number of iterations per epoch
         iters_per_epoch = len(self.data_loader)
+        print(iters_per_epoch)
 
+        print("What the fuck2")
         fixed_x = []
         real_c = []
         for i, (images, labels) in enumerate(self.data_loader):
+            ###################Changed here
+            print("hihi",i)
             fixed_x.append(images)
             real_c.append(labels)
+            #CHANGED HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!from i==3
             if i == 3:
                 break
 
+        print("What the fuck3")
         # Fixed inputs and target domain labels for debugging
         fixed_x = torch.cat(fixed_x, dim=0)
         fixed_x = self.to_var(fixed_x, volatile=True)
@@ -230,6 +271,8 @@ class Solver(object):
                 fixed_c = self.one_hot(torch.ones(fixed_x.size(0)) * i, self.c_dim)
                 fixed_c_list.append(self.to_var(fixed_c, volatile=True))
 
+
+        print("What the fuck4")
         # lr cache for decaying
         g_lr = self.g_lr
         d_lr = self.d_lr
@@ -674,12 +717,41 @@ class Solver(object):
         for i, (real_x, real_c) in enumerate(self.data_loader):
             real_x = self.to_var(real_x, volatile=True)
             target_c_list = self.make_celeb_labels(real_c)
+            #l = ['H', 'Male', 'Young', 'Eyeglasses', 'Mustache', 'Pale_Skin', 'Bald']
+            l = ['H','blad','Eyeglasses','Male','Mustache', 'Pale_Skin', 'Young']
+            s = list(powerset(l))
+            s.pop(0)
 
+            strs = open(self.metadata_path,'r').readlines()
+            attr2idx = {}
+            idx2attr = {}
+            attrs = strs[1].split()
+            for i, attr in enumerate(attrs):
+                attr2idx[attr] = i
+                idx2attr[i] = attr
+            _used_attr = []
+            values = strs[2].split()
+            values = values[1:]
+            for i, v in enumerate(values):
+                if v is "1":
+                    _used_attr.append(idx2attr[i])
+            if 'Black_Hair' in _used_attr:
+                _used_attr[0] = 'H'
+            _used_attr_tuple = tuple(_used_attr)
+            print(_used_attr)
+            if _used_attr_tuple in s :
+                idx = s.index(_used_attr_tuple)
+                print(_used_attr,idx)
             # Start translations
             fake_image_list = [real_x]
+            j = 0
             for target_c in target_c_list:
-                fake_image_list.append(self.G(real_x, target_c))
-            fake_images = torch.cat(fake_image_list, dim=3)
-            save_image(self.denorm(fake_images.data),
-                os.path.join(self.sample_path, '{}.jpg'.format(i)),nrow=1, padding=0)
+                #fake_image_list.append(self.G(real_x, target_c))
+                fake_images = torch.cat(self.G(real_x, target_c), dim=2)
+                #fake_images = torch.cat(fake_image_list, dim=3)
+                #if j == idx :
+                print(j,target_c)
+                save_image(self.denorm(fake_images.data),
+                     os.path.join(self.result_path, '{}_{}.jpg'.format(i, j)),nrow=1, padding=0)
+                j+=1
             print('Translated test images and saved into {}..!'.format(self.result_path))
