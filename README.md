@@ -50,7 +50,7 @@ The generator produces an image to fool the discrimnator, and the discriminator 
 ![StarGan](./img/figure_5.png)
 
 ### Flow
-![Flow](./img/flow.jpg)
+![Flow](./img/Flow.jpg)
 
 ### Demo
 ![Demo1](./img/figure_7.jpg)
