@@ -18,9 +18,11 @@ In this model, we considered limiting the actual image to the human face, and be
 To change the Sketch image into a realistic one, need to train the Pix2Pix model using the Generative Adversarial Network. 
 
 We extracted Sketch from the photos of the CelebA dataset and concatenate the picture of CelebA dataset and Sketch images to organize the pictures shown in Figure 1 to training Pix2Pix model.
+
 ![Figure 1](./img/Figure_1.JPG)
 
 The model used for extracting Sketch image was the Holistically-Nested Edge Detection [HED](https://github.com/zeakey/hed) by UC San Diego. 
+
 ![Figure 2](./img/figure_2.JPG)
 
 #### Text Processor
